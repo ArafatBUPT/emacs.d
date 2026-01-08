@@ -131,13 +131,25 @@
   
   :commands lsp)
 
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-peek-enable t)         
+  (setq lsp-ui-sideline-enable t)     
+  :hook (lsp-mode . lsp-ui-mode))
 
 (use-package projectile
   :ensure t
-  :config
+  :init
   (projectile-mode +1)
-  :bind-keymap
-  ("C-c p" . projectile-command-map))
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-command-map))
+  :config
+  (setq projectile-indexing-method 'native)
+  (setq projectile-switch-project-action 'projectile-find-file))
+
 
 (use-package format-all
   :ensure t
@@ -162,7 +174,7 @@
   (find-file (expand-file-name ".emacs-custom.el" user-emacs-directory)))
 
 
-(global-set-key (kbd "<f5>") 'open-my-init-file)
+(global-set-key (kbd "<f3>") 'open-my-init-file)
 
 
 (use-package google-translate
@@ -202,11 +214,6 @@
      (cmake "https://github.com/uyha/tree-sitter-cmake")))
 (setq treesit--install-queries-set-compiler '("cl" "/O2" "/LD"))
 
-
-(setq treesit--install-queries-set-compiler 
-      '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" "/O2" "/LD"))
-
-
 (require 'treesit)
 
 (setq treesit-extra-load-path '("c:/Users/62414/AppData/Roaming/.emacs.d/tree-sitter"))
@@ -234,3 +241,42 @@
 (global-hl-line-mode t)
 
 (set-face-attribute 'default nil :font "JetBrains Mono-13")
+
+(use-package origami
+  :ensure t
+  :hook (c++-ts-mode . origami-mode)
+  :bind (:map origami-mode-map
+              ("C-c C-f" . origami-recursively-toggle-node))) 
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
+(add-hook 'c++-ts-mode-hook
+          (lambda ()
+            (lsp)                    
+            (yas-minor-mode)         
+            (rainbow-delimiters-mode)
+            (company-mode)           
+            (setq-local column-number-mode t) 
+            (display-line-numbers-mode t)))   
+
+(defvar my-vs-platform "x64" "platform: x64, Win32, etc.")
+(defvar my-vs-config "Debug" "config: Debug, Release, etc.")
+
+(defun my/project-run-in-app-dir ()
+  (interactive)
+  (let* ((proj-root (projectile-project-root)) 
+         (working-dir (expand-file-name "app/" proj-root))
+         (exe-rel-path (format "build/%s-%s/bin/" my-vs-platform my-vs-config))
+         (exe-dir (expand-file-name exe-rel-path proj-root))
+         (exe-path (car (file-expand-wildcards (concat exe-dir "*.exe")))))
+    (if (and exe-path (file-exists-p working-dir))
+        (let ((default-directory working-dir)) 
+          (message "Working Directory is: %s" default-directory)
+          (setenv "PATH" (concat exe-dir ";" (getenv "PATH")))
+          
+          (async-shell-command (format "\"%s\"" exe-path) "*Project Output*"))
+      (message "Error: can't find exe！"))))
+
+(global-set-key [f5] 'my/project-run-in-app-dir)
