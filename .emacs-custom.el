@@ -116,6 +116,8 @@
 
   (c++-mode . lsp)
   (c-mode . lsp)
+  (c++-ts-mode . lsp)
+  (c-ts-mode . lsp)
   
   :config
 
@@ -190,3 +192,45 @@
 (setq mc/edit-lines-empty-lines t))
 (with-eval-after-load 'multiple-cursors
     (setq mc/always-run-for-all t))
+(setq treesit-language-source-alist
+   '((cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+     (c "https://github.com/tree-sitter/tree-sitter-c")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")))
+(setq treesit--install-queries-set-compiler '("cl" "/O2" "/LD"))
+
+
+(setq treesit--install-queries-set-compiler 
+      '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" "/O2" "/LD"))
+
+
+(require 'treesit)
+
+(setq treesit-extra-load-path '("c:/Users/62414/AppData/Roaming/.emacs.d/tree-sitter"))
+
+(setq treesit-font-lock-level 4)
+
+(setq major-mode-remap-alist
+      '((c-mode . c-ts-mode)
+        (c++-mode . c++-ts-mode)
+        (python-mode . python-ts-mode)))
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-palenight t)
+
+  (doom-themes-visual-bell-config))
+
+
+(use-package rainbow-delimiters
+  :ensure t
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+
+(global-hl-line-mode t)
+
+(set-face-attribute 'default nil :font "JetBrains Mono-13")
