@@ -3,6 +3,10 @@
 (setq inhibit-startup-screen t)
 (scroll-bar-mode 0)
 
+(setq initial-scratch-message ";; Happy Hacking, User!\n\n")
+(setq inhibit-startup-screen t)
+
+
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative)
 (ido-mode t)
@@ -67,7 +71,6 @@
   :ensure t)
 
 
-
 (use-package yasnippet
   :ensure t
   :config
@@ -93,12 +96,17 @@
 
   (setq company-backends '((company-capf :with company-yasnippet))))
 
+
 (use-package lsp-mode
   :ensure t
   :init
-
   (setq lsp-clients-clangd-executable "D:/workspace/git/clangd_21.1.8/bin/clangd.exe")
-
+  (setq lsp-keymap-prefix "C-c l")
+  :bind (:map lsp-mode-map
+         ("M-RET" . lsp-execute-code-action)
+         ("C-."   . lsp-execute-code-action)
+	 ("C-c C-d" . lsp-ui-doc-show)
+	 ("C-c C-h" . lsp-ui-doc-hide))
   :custom
 
   (lsp-enable-snippet t)                
@@ -106,7 +114,11 @@
   (lsp-completion-show-detail t)        
   (lsp-completion-show-kind t)          
   (lsp-enable-indentation nil)     
-  (lsp-enable-on-type-formatting nil) 
+  (lsp-enable-on-type-formatting nil)
+  (lsp-clients-clangd-args '("--clang-tidy"                
+                             "--completion-style=detailed"
+                             "--header-insertion=never"
+                             "--fallback-style=Microsoft")) 
   
 
   (lsp-idle-delay 0.1)                  
@@ -122,7 +134,7 @@
   :config
 
   (add-hook 'lsp-mode-hook #'yas-minor-mode)
-  
+
 
 
   (with-eval-after-load 'yasnippet
@@ -135,9 +147,14 @@
   :ensure t
   :commands lsp-ui-mode
   :config
-  (setq lsp-ui-doc-enable t)
-  (setq lsp-ui-peek-enable t)         
-  (setq lsp-ui-sideline-enable t)     
+  (setq lsp-ui-doc-enable nil)             
+  (setq lsp-ui-doc-show-with-cursor nil)   
+  (setq lsp-ui-doc-show-with-mouse nil)    
+  (setq lsp-ui-doc-position 'at-point)     
+  (setq lsp-ui-sideline-enable t)
+  (setq lsp-ui-sideline-show-diagnostics t)
+  (setq lsp-ui-sideline-show-code-actions t)) 
+
   :hook (lsp-mode . lsp-ui-mode))
 
 (use-package projectile
