@@ -134,6 +134,12 @@
   :config
 
   (add-hook 'lsp-mode-hook #'yas-minor-mode)
+  (setq lsp-clients-clangd-args 
+      '("--clang-tidy"
+        "--header-insertion=never"
+        "--cross-file-rename"
+        "--all-scopes-completion"
+        "--completion-style=detailed"))
 
 
 
@@ -147,13 +153,8 @@
   :ensure t
   :commands lsp-ui-mode
   :config
-  (setq lsp-ui-doc-enable nil)             
-  (setq lsp-ui-doc-show-with-cursor nil)   
-  (setq lsp-ui-doc-show-with-mouse nil)    
-  (setq lsp-ui-doc-position 'at-point)     
-  (setq lsp-ui-sideline-enable t)
-  (setq lsp-ui-sideline-show-diagnostics t)
-  (setq lsp-ui-sideline-show-code-actions t)) 
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-doc-show-with-cursor t)
 
   :hook (lsp-mode . lsp-ui-mode))
 
